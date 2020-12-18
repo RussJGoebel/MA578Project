@@ -1,0 +1,67 @@
+---
+title: "penguins"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{penguins}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+First, we load the data:
+
+```{r setup}
+library(MA578Project)
+library(tidyverse)
+
+penguindata <- palmerpenguins::penguins
+penguindata <- penguindata %>% mutate(female = (sex == "female")) %>% 
+  select(bill_length_mm,bill_depth_mm,flipper_length_mm,female) %>% drop_na
+
+X <- penguindata %>% select(bill_length_mm,bill_depth_mm,flipper_length_mm)
+y <- penguindata %>% select(female)
+
+n <- length(y)
+
+X <- as.matrix(X)
+X <- cbind(rep(1,n),X)
+y <- as.matrix(y)
+
+
+
+```
+
+# Acceptance Probability Analysis
+
+```{r}
+
+X2 <- X[,1:2]
+candidate_probabilities <- c(0.1,0.2,0.3,0.4,0.5)
+burn_in <- coupled_ARWM(100000,y,X2,type = "none",beta_init = c(6,0),beta_couple_init = c(6,0))
+
+starting_betas <- burn_in$Res[90000:100000,]
+indices <- 1:dim(starting_betas)[1]
+
+n <- 10000
+tresults <- numeric(n)
+for(i in 1:n){
+  binit <- starting_betas[sample(indices,1),]
+  bcouple <- binit
+  r <- coupled_ARWM(1,y,X2,type = "reflection maximal",beta_init = binit, beta_couple = bcouple,C_init = burn_in$C)
+  tresults[i] <- r$tau
+  if(i %% 100 ==0){print(i)}
+}
+
+hist(tresults)
+
+```
+
+
+
+

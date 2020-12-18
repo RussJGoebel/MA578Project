@@ -4,7 +4,7 @@
 \alias{logpi_logistic}
 \title{Log Posterior Density for Logistic Regression}
 \usage{
-logpi_logistic(beta, y, X, c_prior = 100)
+logpi_logistic(beta, y, X, prior = 100)
 }
 \arguments{
 \item{beta}{Beta values}

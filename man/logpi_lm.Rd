@@ -4,7 +4,7 @@
 \alias{logpi_lm}
 \title{Log Posterior Density for Linear Regression}
 \usage{
-logpi_lm(beta = c(0, 0), prior = 10^(-3) * numeric(length(b)))
+logpi_lm(beta = c(0, 0), y, X, prior = 10^(-3) * numeric(length(beta)))
 }
 \arguments{
 \item{prior}{}
@@ -21,7 +21,7 @@ Code is modified from course materials from the Boston University course MA578 a
 x <- matrix(rnorm(100))
 x <- cbind(1,x)
 y <- x\%*\%c(5,1)+rnorm(50,0,1/2)
-logpi_logistic(c(5,1),y,x)
+logpi_lm(c(5,1),y,x)
 
 
 }

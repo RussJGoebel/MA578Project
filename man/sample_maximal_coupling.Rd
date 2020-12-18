@@ -29,8 +29,11 @@ pden <- function(x){dnorm(x,0,1, log = TRUE)}
 qden <- function(x){dexp(x,1, log = TRUE)}
 
 
-niter <- 100000
+niter <- 1000
 rmat <- matrix(nrow = niter,ncol = 2)
+
+
+# Maximal
 
 for(i in 1:niter){
 
