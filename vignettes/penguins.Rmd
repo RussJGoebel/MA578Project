@@ -39,28 +39,119 @@ y <- as.matrix(y)
 
 # Acceptance Probability Analysis
 
-```{r}
-
+```{r, eval = F}
+# -------------------------------------------------------------------------------------
 X2 <- X[,1:2]
 candidate_probabilities <- c(0.1,0.2,0.3,0.4,0.5)
+
+l_minus_k <- 1000
+
+
+presults <- matrix(nrow = 10000,ncol = length(candidate_probabilities))
+
 burn_in <- coupled_ARWM(100000,y,X2,type = "none",beta_init = c(6,0),beta_couple_init = c(6,0))
 
-starting_betas <- burn_in$Res[90000:100000,]
-indices <- 1:dim(starting_betas)[1]
+starting_betas <- burn_in$Res[(90000):100000,,drop = F]
+indices <- (1+l_minus_k):10000
+for(j in seq_along(candidate_probabilities)){
 
 n <- 10000
 tresults <- numeric(n)
 for(i in 1:n){
-  binit <- starting_betas[sample(indices,1),]
-  bcouple <- binit
-  r <- coupled_ARWM(1,y,X2,type = "reflection maximal",beta_init = binit, beta_couple = bcouple,C_init = burn_in$C)
-  tresults[i] <- r$tau
+  
+  
+
+  ell <- sample(indices,1)
+  k <- ell-l_minus_k
+ 
+  binit <- starting_betas[sample(ell:k,1),]
+  bcouple <- starting_betas[sample(ell:k,1),]
+  r <- coupled_ARWM(1,y,X2,type = "reflection maximal",beta_init = binit, beta_couple =  bcouple,
+                    C_init = burn_in$C,
+                    lsig_init = burn_in$lsig,
+                    mu_init = burn_in$mu,
+                    acceptance_probability = candidate_probability[i])
+  presults[i,j] <- r$tau
   if(i %% 100 ==0){print(i)}
 }
 
-hist(tresults)
+
+
+}
+
+# 
+
+
 
 ```
+
+# Dimensionality Analysis
+
+```{r, eval = F}
+candidate_dimensions <- 1:4
+
+
+# Note: 4 takes a long time.
+tresults <- matrix(nrow = n, ncol = length(candidate_dimensions))
+
+for(j in 1:4){
+  
+Xn <- X[,1:j, drop = F]
+
+g <- glm(y~Xn,family = binomial())
+
+burn_in <- coupled_ARWM(100000,y,Xn,type = "none",beta_init = g$coefficients[-2],beta_couple_init = g$coefficients[-2])
+
+starting_betas <- burn_in$Res[90000:100000,,drop = F]
+indices <- 1:dim(starting_betas)[1]
+
+
+n <- 10000
+
+for(i in 1:n){
+  binit <- starting_betas[sample(indices,1),]
+  bcouple <- starting_betas[sample(indices,1),]
+  r <- coupled_ARWM(1,y,Xn,type = "reflection maximal",beta_init = binit, beta_couple = bcouple,C_init = burn_in$C, 
+                    mu_init =  burn_in$mu,
+                    lsig_init = burn_in$lsig,
+                    acceptance_probability = 0.3)
+  tresults[i,j] <- r$tau
+  if(i %% 100 ==0){print(i)}
+}
+
+
+
+}
+
+
+
+
+
+
+
+```
+
+```{r}
+#data(tresults)
+png("Dimensionality1.png", width = 1600, height = 1600)
+par(mfrow = c(2,2), cex = 2)
+hist(tresults[,1], col = "lightblue", main = "Histogram of One-Dimensional Regression", xlab = "Meeting time")
+hist(tresults[,2], col = "lightblue",main = "Histogram of Two-Dimensional Regression", xlab = "Meeting time")
+hist(tresults[,3], col = "lightblue",main = "Histogram of Three-Dimensional Regression", xlab = "Meeting time")
+hist(tresults[,4], col = "lightblue",main = "Histogram of Four-Dimensional Regression", xlab = "Meeting time")
+dev.off()
+
+m <- apply(tresults,2,median)
+tib <- tibble(one = m[1], two = m[2], three = m[3], foure = m[4])
+rownames(tib) <- c("Median Meeting Time")
+
+a <- m %>% knitr::kable(format = "latex")
+```
+Time averaged estimator
+```{r}
+
+```
+
 
 
 

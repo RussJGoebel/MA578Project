@@ -34,7 +34,8 @@ coupled_ARWM = function(Niter,y,X,logpi = logpi_logistic, type = c("maximal","re
                         acceptance_probability = 0.3,
                         beta_init = numeric(length(X[1,])),
                         beta_couple_init = numeric(length(X[1,])),
-                        C_init= diag(length(X[1,]))){
+                        C_init= diag(length(X[1,])),
+                        lsig_init = 1){
 
     type <- match.arg(type)
 
@@ -72,7 +73,7 @@ coupled_ARWM = function(Niter,y,X,logpi = logpi_logistic, type = c("maximal","re
     lpi = logpi(beta,y,X);
     lpi_couple = logpi(beta_couple,y,X);
 
-    lsig = 1;
+    lsig = lsig_init;
     mu = beta;
     C = C_init; R = t(chol(C))
     cpt_Update = 0; L_update = 500;
@@ -174,5 +175,5 @@ coupled_ARWM = function(Niter,y,X,logpi = logpi_logistic, type = c("maximal","re
 
     if(identical(type,"none")) Res_couple <- NULL
 
-    return(list(Res = Res[remove_tail_na,], Res_couple = Res_couple[remove_tail_na,],tau = tau, C = C))
+    return(list(Res = Res[remove_tail_na,,drop = F], Res_couple = Res_couple[remove_tail_na,,drop = F],tau = tau, C = C, lsig = lsig))
 }
