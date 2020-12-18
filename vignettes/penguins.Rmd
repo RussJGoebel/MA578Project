@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 First, we load the data:
 
-```{r setup}
+```{r setup, eval = F}
 library(MA578Project)
 library(tidyverse)
 
@@ -131,7 +131,7 @@ for(i in 1:n){
 
 ```
 
-```{r}
+```{r, eval = F}
 #data(tresults)
 png("Dimensionality1.png", width = 1600, height = 1600)
 par(mfrow = c(2,2), cex = 2)
@@ -147,12 +147,42 @@ rownames(tib) <- c("Median Meeting Time")
 
 a <- m %>% knitr::kable(format = "latex")
 ```
-Time averaged estimator
-```{r}
 
+# m and k paramater analysis for time averaged estimator.
+
+```{r, eval = F}
+Xn <- X[,1:2]
+burn_in <- coupled_ARWM(100000,y,Xn,type = "none",beta_init = c(6,0),beta_couple_init = c(6,0))
+
+colMeans(burn_in$Res[80000:10000,])
+
+n <- 100000
+
+k <- 25
+m <- 50
+
+biased_estimates <- matrix(nrow = n, ncol = 2)
+bias_correction_estimates <-matrix(nrow = n, ncol = 2)
+
+for(i in 1:n){
+   binit <- burn_in$Res[100000,]
+   bcouple <- binit
+   r <- coupled_ARWM(max(2,m+1),y,Xn,type = "reflection maximal",beta_init = binit, beta_couple = bcouple,C_init = burn_in$C, 
+                    mu_init =  burn_in$mu,
+                    lsig_init = burn_in$lsig,
+                    acceptance_probability = 0.3)
+   t <- time_averaged_estimator(r,m,k, tau = r$tau)
+   biased_estimates[i,] <- t$estimate
+   bias_correction_estimates[i,] <- t$bias_correction
+   if(i %% 1000 == 0){print(i)}
+}
+
+colMeans(biased_estimates)
+colMeans(bias_correction_estimates)
+colMeans(biased_estimates+bias_correction_estimates,na.rm = T)
+
+var(biased_estimates+bias_correction_estimates, na.rm = T)
 ```
-
-
 
 
 

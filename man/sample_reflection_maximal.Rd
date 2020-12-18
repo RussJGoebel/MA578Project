@@ -27,29 +27,29 @@ sample_reflection_maximal(
 
 }
 \description{
-See Unbiased Markov chain Monte Carlo with couplings for details.
+See Unbiased Markov chain Monte Carlo with Couplings, by Pierre E. Jacob, John O'leary, and Yves F. Atchade for details.
 }
 \examples{
 
-mu_p = -1
-mu_q = 1
-sigma = diag(1)
+mu_p = -c(1,1)
+mu_q = c(1,1)
+sigma = diag(2)
 
 
 
 
 
 niter <- 1000
-rmat <- matrix(nrow = niter, ncol = 2)
+rmat <- matrix(nrow = niter, ncol = 4)
 
 for(i in 1:niter){
 r <- sample_reflection_maximal(mu_p,mu_q,sigma)
-rmat[i,1] <- r$x
-rmat[i,2] <- r$y
+rmat[i,1:2] <- r$x
+rmat[i,3:4] <- r$y
 }
 
 hist(c(rmat[,1],rmat[,2]))
-plot(rmat[,1]~rmat[,2])
+plot(rmat[,3]~rmat[,4])
 
 
 

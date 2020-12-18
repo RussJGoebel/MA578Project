@@ -21,29 +21,3 @@ sample_maximal_coupling(psample, qsample, pdensity, qdensity)
 \description{
 Uses maximal coupling to produce a single sample from distriubtions p and q.
 }
-\examples{
-
-psamp <- function(){rnorm(1,0,1)}
-qsamp <- function(){rexp(1,1)}
-pden <- function(x){dnorm(x,0,1, log = TRUE)}
-qden <- function(x){dexp(x,1, log = TRUE)}
-
-
-niter <- 1000
-rmat <- matrix(nrow = niter,ncol = 2)
-
-
-# Maximal
-
-for(i in 1:niter){
-
-r <- sample_maximal_coupling(psamp,qsamp,pden,qden)
-rmat[i,1] <- r$x
-rmat[i,2] <- r$y
-
-}
-
-hist(rmat[,1])
-hist(rmat[,2])
-
-}

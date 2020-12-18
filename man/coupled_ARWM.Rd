@@ -4,7 +4,19 @@
 \alias{coupled_ARWM}
 \title{Coupled Adaptive Random Walk Metropolis Algorithm}
 \usage{
-coupled_ARWM(Niter, y, X, type = c("maximal", "reflection maximal"))
+coupled_ARWM(
+  Niter,
+  y,
+  X,
+  logpi = logpi_logistic,
+  type = c("maximal", "reflection maximal", "none"),
+  acceptance_probability = 0.3,
+  beta_init = numeric(length(X[1, ])),
+  beta_couple_init = numeric(length(X[1, ])),
+  C_init = diag(length(X[1, ])),
+  lsig_init = 1,
+  mu_init = numeric(length(X[1, ]))
+)
 }
 \arguments{
 \item{Niter}{Number of iterations for the algorithm to run}
@@ -23,17 +35,17 @@ Code is modified from course materials from the Boston University course MA578 a
 x <- matrix(rnorm(100))
 y <- rbinom(100,1,exp(x)/(1+exp(x)))
 
-logpi <- logpi_logistic
 
-r <- coupled_ARWM(1000,y,x, type = "reflection maximal")
 
-n <- 10000
+r <- coupled_ARWM(1000,y,x, type = "reflection maximal", acceptance_probability = 0.3)
+
+n <- 1000
 t <- numeric(n)
 for(i in 1:n){
-r <- coupled_ARWM(1000,y,x, type = "reflection maximal")
+r <- coupled_ARWM(1,y,x, type = "reflection maximal")
 t[i] <- r$tau
 
-if(i \%\% 2 == 0){print(i)}
+if(i \%\% 10 == 0){print(i)}
 
 }
 
